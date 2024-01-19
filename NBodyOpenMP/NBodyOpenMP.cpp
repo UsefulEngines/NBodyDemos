@@ -124,7 +124,7 @@ public:
 
 int main(int argc, char** argv)
 {
-	int numberOfParticles = 1000;
+	int numberOfParticles = 10000;
 	int numberOfSteps = 100;
 
 	// To do... better validation of args.
