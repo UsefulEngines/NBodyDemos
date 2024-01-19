@@ -1,14 +1,49 @@
+
+/*
+ *  NBodySoaVersusAos.cpp
+ *
+ *  Demonstration of C++20 standard library parallel algorithms applied to the n-body problem.
+ *  Experiment with performance of 'Structure of Arrays' versus 'Array of Structures' for Particle data.
+ *
+ */
+
+
+#include <chrono>
 #include <iostream>
 #include <vector>
 #include <cmath>
 #include <execution>
 #include <random>
+#include <cstdlib>
 #include <array>
+#include <algorithm>
+
+// 3D vector class
+/*
+    NOTE:  This is not used in this version of the code, but is left here for reference.
+
+typedef struct Particle
+{
+    Particle() { init(); }
+
+    void init() {
+        pos[0] = 0.; pos[1] = 0.; pos[2] = 0.;
+        vel[0] = 0.; vel[1] = 0.; vel[2] = 0.;
+        acc[0] = 0.; acc[1] = 0.; acc[2] = 0.;
+        mass = 0.;
+    }
+
+    double pos[3];        // position
+    double vel[3];		  // velocity
+    double acc[3];		  // acceleration
+    double mass;
+} Particle;
+*/
 
 class ParticleSystem
 {
 public:
-    std::vector<std::array<double, 3>> positions;
+    std::vector<std::array<double, 3>> positions;       
     std::vector<std::array<double, 3>> velocities;
     std::vector<std::array<double, 3>> accelerations;
     std::vector<double> masses;
@@ -51,6 +86,10 @@ public:
         for (auto& acc : accelerations) {
             acc.fill(0.0);
         }
+
+        //
+        //  NOTE: The std::execution::par algorithm below doesn't yet work... debugging...
+        //
 
         // Calculate forces in parallel using C++20 parallel algorithms
         std::for_each(std::execution::par, positions.begin(), positions.end(),

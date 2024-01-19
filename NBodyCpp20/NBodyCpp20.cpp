@@ -1,14 +1,20 @@
 
 
+/*
+ *  NBodyCpp20.cpp
+ *
+ *  Demonstration of C++20 standard library parallel algorithms applied to the n-body problem.
+ *
+ */
 
-
+#include <chrono>
 #include <iostream>
 #include <vector>
 #include <cmath>
 #include <execution>
 #include <random>
 #include <cstdlib>
-
+#include <algorithm>
 
 // 3D vector class
 
@@ -42,15 +48,23 @@ public:
 		//
         particles.reserve(num_particles);
 
+        //
+        //  Thoughts on thread safety...
+        //
+        //  The following code is not using a Parallel for loop because the std::vector::push_back() is not thread-safe.
+        //  And, the std::random_device is not thread-safe.  We could rewrite this so that each thread has its own
+        //  std::random_device, but that would be inefficient too.  Research further...
+        // 
+
         // Use a better random number generation scheme than rand()	
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_real_distribution<> dis(0.0, 1000.0);
 
-        // Initialize particles...
-    	for (int i = 0; i < num_particles; ++i) {
-    		Particle p;
-        	// random position
+        // Initialize particles... Thread-safe, but not parallelized.
+		for (int i = 0; i < num_particles; ++i) {
+			Particle p;
+			// random position
 			p.pos[0] = 1e18 * exp(-1.8) * (0.5 - dis(gen));
 			p.pos[1] = 1e18 * exp(-1.8) * (0.5 - dis(gen));
 			p.pos[2] = 1e18 * exp(-1.8) * (0.5 - dis(gen));
@@ -64,7 +78,7 @@ public:
 			p.acc[0] = 0.0;
 			p.acc[1] = 0.0;
 			p.acc[2] = 0.0;
-            particles.push_back(p);
+			particles.push_back(p);    // push_back() thread safety issues?
 		}
     }
 
@@ -99,7 +113,7 @@ public:
             }
         );
 
-        // Update velocity and position
+        // Update velocity and position.  Parallelize this loop too?
         for (auto& p : particles) {
             for (int i = 0; i < 3; ++i) {
                 p.vel[i] += p.acc[i];
